@@ -1,0 +1,40 @@
+{
+  "name": "supplyguard-ai",
+  "version": "0.1.0",
+  "description": "SupplyGuard-AI: autonomous multi-agent supply cost auditing and purchasing system with LangGraph orchestration, human-in-the-loop approval, MCP tool integration and multi-tenant Supabase persistence.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "mcp:audit": "tsx src/mcp/auditServer.ts",
+    "mcp:purchasing": "tsx src/mcp/purchasingServer.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@google/genai": "^0.14.0",
+    "@langchain/core": "^0.3.40",
+    "@langchain/langgraph": "^0.2.44",
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "@supabase/supabase-js": "^2.49.1",
+    "bullmq": "^5.34.10",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "ioredis": "^5.4.2",
+    "node-cron": "^3.0.3",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.17.19",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
