@@ -27,36 +27,17 @@ Sistema multiagente autônomo para auditoria de custos e compras de insumos, com
 
 ## Arquitetura
 
-```
-                 ┌────────────────────┐
-  node-cron ───▶ │  POST /api/audit/   │
-  (06:00 diário) │  trigger            │
-                 └─────────┬──────────┘
-                           ▼
-                     BullMQ Queue (Redis)
-                           ▼
-                     BullMQ Worker
-                           ▼
-              ┌─────────────────────────┐
-              │   LangGraph StateGraph   │
-              │                          │
-              │  cost_auditor            │──▶ chama MCP auditServer
-              │        │                 │    (get_batches_and_fefo_alerts,
-              │        ▼                 │     get_supplier_price_variance)
-              │  supplies_drafter        │──▶ chama MCP purchasingServer
-              │        │                 │    (draft_purchase_order)
-              │        ▼                 │
-              │  ⏸ interruptBefore       │──▶ dashboard mostra ApprovalModal
-              │  (aguarda aprovação)     │
-              │        ▼                 │
-              │  supplies_committer      │──▶ chama MCP purchasingServer
-              │                          │    (commit_purchase_order)
-              └─────────────────────────┘
-                           ▲
-                           │ POST /api/purchases/approve
-                           │ (retoma o grafo a partir do checkpoint)
-                    Dashboard (React)
-```
+![Arquitetura do SupplyGuard-AI](./docs/architecture.svg)
+
+Um trigger (cron diário às 06:00 ou o botão **Run Audit** no dashboard) enfileira
+um job no BullMQ; o worker executa o `StateGraph` do LangGraph
+(`cost_auditor` → `supplies_drafter`), que chama os servidores MCP e o Gemini
+e grava cada execução em `agent_tasks`. O grafo pausa em `supplies_committer`
+(`interruptBefore`) até que um humano aprove ou rejeite o pedido no dashboard
+React — a decisão é enviada por `POST /api/purchases/approve`, que retoma o
+grafo via `updateState(human_approved)` + `invoke(null)`. O diagrama mostra os
+componentes, o fluxo automático (cinza), as ferramentas MCP (roxo), os
+serviços externos (azul) e o loop human-in-the-loop (âmbar).
 
 Todas as consultas ao Supabase feitas pelos servidores MCP são explicitamente
 filtradas por `tenant_id` (o backend usa a service role key, que ignora RLS
