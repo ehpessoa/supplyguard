@@ -1,6 +1,8 @@
 node_modules/
 dist/
 build/
+__pycache__/
+*.pyc
 .env
 .env.local
 *.log
@@ -8,3 +10,8 @@ npm-debug.log*
 .DS_Store
 client/node_modules/
 client/dist/
+
+# youtube-music-classifier: credenciais locais, nunca commitar
+youtube-music-classifier/.venv/
+youtube-music-classifier/oauth.json
+youtube-music-classifier/browser.json
